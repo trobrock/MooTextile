@@ -14,3 +14,12 @@ provides: []
 
 ...
 */
+
+(function($){
+	
+	var textareas = $$('textarea.mootextile');
+	if (textareas.length > 0) {
+		
+	}
+	
+}(document.id))
