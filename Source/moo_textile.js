@@ -33,6 +33,7 @@ var MooTextile = new Class({
 		this.markup = $H(this.markup);
 		this.buttons = $H(this.buttons);
 		this.wrapper();
+		this.injectControls();
 	},
 	
 	wrapper : function(){
@@ -40,20 +41,24 @@ var MooTextile = new Class({
 			var wrapper = Elements.from('<div class="mootextile-wrapper"></div>');
 			wrapper.pop().wraps(e);
 		});
+		
+		return this;
 	},
 	
 	injectControls : function(){
-		this.elements.each(function(e){
+		this.elements.each(function(ele){
 			var controls = Elements.from('<div class="mooextile-controls"></div>');
-			controls = controls.pop().inject(e, 'before');
-			controls.addEvent('click', function(ele){
-				ele.stop();
+			controls = controls.pop().inject(ele, 'before');
+			controls.addEvent('click', function(e){
+				e.stop();
 				this.insertMarkup(e.target, ele);
 			}.bind(this));
-			controls.setStyle('width', e.getSize().x);
+			controls.setStyle('width', ele.getSize().x);
 			
 			this.injectButtons(controls);
 		}.bind(this));
+		
+		return this;
 	},
 	
 	injectButtons : function(controls){
@@ -64,17 +69,21 @@ var MooTextile = new Class({
 			});
 			controls.grab(button);
 		});
+		
+		return this;
 	},
 	
 	insertMarkup : function(button, textarea){
 		var buttonText = button.get('html');
 		var selected = textarea.getSelectedText();
 		if (selected === "") {
-			textarea.insertAtCursor(markup.bold + markup.bold);
-			textarea.setCaretPosition(textarea.getSelectionEnd() - marup.bold.length);
+			textarea.insertAtCursor(this.markup[buttonText] + this.markup[buttonText]);
+			textarea.setCaretPosition(textarea.getSelectionEnd() - this.markup.bold.length);
 		}
 		else {
-			textarea.insertAtCursor(markup.bold + selected + markup.bold);
+			textarea.insertAtCursor(this.markup[buttonText] + selected + this.markup[buttonText]);
 		}
+		
+		return this;
 	},
 });
