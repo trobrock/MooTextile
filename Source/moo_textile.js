@@ -10,45 +10,71 @@ authors:
 requires:
 - core/1.2.4: '*'
 
-provides: []
+provides: [MooTextile]
 
 ...
 */
 
-(function($){
-	window.addEvent('domready', function(){
-		
-		var buttons = {
-			bold : 'Bold', 
-		};
-		
-		var textareas = $$('textarea.mootextile');
-		if (textareas.length > 0) {
+var MooTextile = new Class({
+	Implements : [Options, Events], 
+	options : {}, 
+	markup : {
+		bold : '*', 
+		italic : '_', 
+	}, 
+	buttons : {
+		bold : 'bold', 
+		italic : 'italic', 
+	},
+	
+	initialize : function(options){
+		this.setOptions(options);
+		this.elements = $$('textarea.mootextile');
+		this.markup = $H(this.markup);
+		this.buttons = $H(this.buttons);
+		this.wrapper();
+	},
+	
+	wrapper : function(){
+		this.elements.each(function(e){
+			var wrapper = Elements.from('<div class="mootextile-wrapper"></div>');
+			wrapper.pop().wraps(e);
+		});
+	},
+	
+	injectControls : function(){
+		this.elements.each(function(e){
+			var controls = Elements.from('<div class="mooextile-controls"></div>');
+			controls = controls.pop().inject(e, 'before');
+			controls.addEvent('click', function(ele){
+				ele.stop();
+				this.insertMarkup(e.target, ele);
+			}.bind(this));
+			controls.setStyle('width', e.getSize().x);
 			
-			// Inserts the wrapper and controls div
-			var w = (new Element('div', {'class' : 'wrapper'})).wraps(textareas[0]);
-			var c = (new Element('div', {'class' : 'controls'})).inject(textareas[0], 'before');
-			
-			// sets the controls size
-			var size = textareas[0].getSize();
-			c.setStyles({width : size.x});
-			
-			// insert the controls
-			var bold = new Element('a', {href : '#', html : buttons.bold});
-			c.grab(bold);
-			
-			bold.addEvent('click', function(e){
-				e.stop();
-				var txt = textareas[0].getSelectedText();
-				
-				if (txt === "") {
-					// Insert markup and position the caret
-				}
-				else {
-					// wrap the selection with the markup
-				}
+			this.injectButtons(controls);
+		}.bind(this));
+	},
+	
+	injectButtons : function(controls){
+		this.buttons.each(function(buttonText){
+			var button = new Element('a', {
+				href : '#', 
+				html : buttonText, 
 			});
+			controls.grab(button);
+		});
+	},
+	
+	insertMarkup : function(button, textarea){
+		var buttonText = button.get('html');
+		var selected = textarea.getSelectedText();
+		if (selected === "") {
+			textarea.insertAtCursor(markup.bold + markup.bold);
+			textarea.setCaretPosition(textarea.getSelectionEnd() - marup.bold.length);
 		}
-		
-	});
-}(document.id))
+		else {
+			textarea.insertAtCursor(markup.bold + selected + markup.bold);
+		}
+	},
+});
